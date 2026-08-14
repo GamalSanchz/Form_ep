@@ -11,15 +11,26 @@
     --bg:#0b0f1a; --surface:#131928; --surface2:#1a2236; --border:rgba(255,255,255,.08);
     --accent:#E2591D; --accent2:#F0A202; --accent4:#f43f5e; --muted:#6b7a99; --text:#eef2f9;
   }
+  body.light{
+    --bg:#f5f0e6; --surface:#ffffff; --surface2:#f0e9db; --border:rgba(60,40,20,.12);
+    --accent:#E2591D; --accent2:#C1440E; --accent4:#dc2f4f; --muted:#8a7a63; --text:#2b1d10;
+  }
   *{box-sizing:border-box;}
   body{margin:0;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
-       display:flex;align-items:center;justify-content:center;padding:16px;overflow-x:hidden;position:relative;}
-  .demo-badge{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:5;background:var(--accent3,#f59e0b);
-       color:#1a1400;font-size:11px;font-weight:700;padding:6px 14px;border-radius:20px;letter-spacing:.4px;
-       box-shadow:0 4px 14px rgba(245,158,11,.35);}
-  .blob{position:fixed;border-radius:50%;filter:blur(70px);opacity:.28;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite;}
+       display:flex;align-items:center;justify-content:center;padding:16px;overflow-x:hidden;position:relative;
+       transition:background .3s,color .3s;}
+  .theme-toggle{position:fixed;top:14px;right:14px;z-index:5;width:38px;height:38px;border-radius:50%;
+       background:var(--surface);border:1px solid var(--border);color:var(--text);display:flex;
+       align-items:center;justify-content:center;cursor:pointer;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.25);
+       transition:transform .2s;}
+  .theme-toggle:active{transform:scale(.9);}
+  .demo-badge{display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;background:var(--surface2);
+       border:1px solid var(--accent);color:var(--accent);font-size:10.5px;font-weight:700;padding:5px 12px;
+       border-radius:20px;letter-spacing:.3px;width:fit-content;}
+  .badge-wrap{display:flex;justify-content:center;}
+  .blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.16;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite;}
   .blob1{width:320px;height:320px;background:var(--accent);top:-100px;left:-80px;}
-  .blob2{width:280px;height:280px;background:var(--accent2);bottom:-100px;right:-80px;animation-delay:-8s;}
+  .blob2{width:280px;height:280px;background:#7a2e12;bottom:-100px;right:-80px;animation-delay:-8s;opacity:.22;}
   @keyframes drift{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-20px) scale(1.1);}}
   .wrap{width:100%;max-width:560px;position:relative;z-index:1;}
   .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:18px;animation:dropIn .5s ease;}
@@ -119,6 +130,7 @@
        animation:shake .4s ease;}
   @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
   .alert-error{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);color:#ff8098;}
+  body.light .alert-error{color:#b3123a;}
   .success{text-align:center;padding:20px 6px;display:none;position:relative;}
   .success.active{display:block;}
   .success .check-circle{width:76px;height:76px;border-radius:50%;background:rgba(240,162,2,.12);
@@ -133,10 +145,11 @@
 </style>
 </head>
 <body>
-<div class="demo-badge"><i class="fas fa-eye"></i> Vista previa — no guarda datos reales</div>
+<button type="button" class="theme-toggle" id="themeToggle" title="Cambiar modo claro/oscuro"><i class="fas fa-moon" id="themeIcon"></i></button>
 <div class="blob blob1"></div>
 <div class="blob blob2"></div>
 <div class="wrap">
+  <div class="badge-wrap"><div class="demo-badge"><i class="fas fa-eye"></i> Vista previa — no guarda datos reales</div></div>
   <div class="brand">
     <div class="logo"><i class="fas fa-globe-americas"></i></div>
     <div>AIESEC ESEN<span>Aplicación a intercambio</span></div>
@@ -180,6 +193,7 @@
             <select name="universidad_id" id="selUni" onchange="toggleUniOtra()">
               <option value="">— Selecciona tu universidad —</option>
               <!-- Datos de ejemplo — en el sistema real esta lista sale de tu catálogo en la BD -->
+              <option value="0">Escuela Superior de Economía y Negocios (ESEN)</option>
               <option value="1">Universidad Gerardo Barrios (UGB)</option>
               <option value="2">Universidad de El Salvador (UES)</option>
               <option value="3">Universidad Don Bosco (UDB)</option>
@@ -388,6 +402,19 @@ function reiniciarDemo(){
 toggleUniOtra();
 toggleComoOtro();
 actualizarUI();
+
+// ── Modo claro/oscuro (se recuerda entre visitas) ──────────────────────────
+(function(){
+  const saved = localStorage.getItem('ep_form_theme');
+  const icon = document.getElementById('themeIcon');
+  if (saved === 'light') { document.body.classList.add('light'); icon.className = 'fas fa-sun'; }
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+    localStorage.setItem('ep_form_theme', isLight ? 'light' : 'dark');
+  });
+})();
+
 </script>
 </body>
 </html>
