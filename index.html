@@ -142,6 +142,16 @@
   .success .again{margin-top:16px;animation:itemIn .4s ease .35s backwards;}
   .confetti{position:absolute;top:0;left:50%;font-size:18px;opacity:0;pointer-events:none;animation:confetti 1.1s ease-out forwards;}
   @keyframes confetti{0%{opacity:1;transform:translate(0,0) rotate(0);}100%{opacity:0;transform:translate(var(--dx),120px) rotate(var(--rot));}}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.active{display:flex;animation:overlayIn .2s ease;}
+  @keyframes overlayIn{from{opacity:0;}to{opacity:1;}}
+  .modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:340px;
+       text-align:center;animation:popIn .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .modal-icon{font-size:34px;color:var(--accent);margin-bottom:12px;display:block;}
+  .modal-box h3{font-size:16px;margin:0 0 8px;}
+  .modal-box p{font-size:13px;color:var(--muted);line-height:1.55;margin:0 0 18px;}
+  .modal-btns{display:flex;flex-direction:column;gap:8px;}
+  .modal-btns button{width:100%;}
 </style>
 </head>
 <body>
@@ -212,7 +222,8 @@
             <div class="tile-group">
               <label class="tile-option" data-c="GV">
                 <input type="radio" name="tipo_interes" value="GV">
-                <span><span class="tile-icon"><i class="fas fa-hand-holding-heart"></i></span>Global Volunteer<span class="tile-desc">Voluntariado Intermacional</span></span>
+                <span><span class="tile-icon"><i class="fas fa-hand-holding-heart"></i></span>Global Volunteer<span class="tile-desc">Voluntariado Internacional
+                </span></span>
               </label>
               <label class="tile-option" data-c="GTa">
                 <input type="radio" name="tipo_interes" value="GTa">
@@ -260,9 +271,6 @@
               <input type="file" name="cv" id="cvInput" accept=".pdf,.jpg,.jpeg,.png" onchange="mostrarArchivo(this)">
             </label>
           </div>
-          <div class="alert" style="background:rgba(226,89,29,.1);border:1px solid rgba(226,89,29,.3);color:var(--accent);">
-            <i class="fas fa-circle-info"></i> Si no tienes tu CV a la mano puedes enviar el formulario, pero ten en cuenta que debes subirlo para poder aplicar a nuestras oportunidades.
-          </div>
           <p class="hint">Al enviar, tu solicitud entra directo a revisión del equipo OGX de AIESEC ESEN.</p>
         </div>
 
@@ -272,6 +280,18 @@
           <button type="submit" class="btn-primary" id="btnSubmit" style="display:none;"><i class="fas fa-paper-plane"></i> Enviar aplicación</button>
         </div>
       </form>
+    </div>
+
+    <div class="modal-overlay" id="cvModal">
+      <div class="modal-box">
+        <i class="fas fa-circle-info modal-icon"></i>
+        <h3>¿Enviar sin CV?</h3>
+        <p>Si no tienes tu CV a la mano puedes enviar el formulario, pero ten en cuenta que debes subirlo para poder aplicar a nuestras oportunidades.</p>
+        <div class="modal-btns">
+          <button type="button" class="btn-back" onclick="cerrarModalCv()">Subir mi CV</button>
+          <button type="button" class="btn-primary" onclick="confirmarEnvioSinCv()">Enviar sin CV</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -372,14 +392,20 @@ function lanzarConfetti(){
   }
 }
 
+let envioConfirmadoSinCv = false;
+
 function enviarDemo(ev){
   ev.preventDefault();
   if (!validarPaso(4)) return false;
+  const tieneCv = document.getElementById('cvInput').files.length > 0;
+  if (!tieneCv && !envioConfirmadoSinCv) {
+    document.getElementById('cvModal').classList.add('active');
+    return false;
+  }
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
   const nombre = document.querySelector('[name=nombre]').value.trim() || 'Alguien';
-  const tieneCv = document.getElementById('cvInput').files.length > 0;
   // Simula el tiempo de un envío real antes de mostrar el éxito
   setTimeout(() => {
     document.getElementById('nombreConfirmacion').textContent = nombre;
@@ -404,6 +430,17 @@ function reiniciarDemo(){
   btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar aplicación';
   pasoActual = 1;
   actualizarUI();
+  envioConfirmadoSinCv = false;
+}
+
+function cerrarModalCv(){
+  document.getElementById('cvModal').classList.remove('active');
+  document.getElementById('cvInput').click();
+}
+function confirmarEnvioSinCv(){
+  envioConfirmadoSinCv = true;
+  document.getElementById('cvModal').classList.remove('active');
+  document.getElementById('epForm').requestSubmit();
 }
 
 toggleUniOtra();
