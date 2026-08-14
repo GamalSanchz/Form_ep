@@ -160,7 +160,7 @@
     <div class="success" id="successBox">
       <div class="check-circle"><i class="fas fa-check"></i></div>
       <h2>¡Gracias, <span id="nombreConfirmacion">Alguien</span>!</h2>
-      <p>Ya recibimos tu aplicación y tu CV. Nuestro equipo va a revisar tu perfil y te va a contactar pronto por WhatsApp o correo. ¡Prepárate para vivir tu experiencia AIESEC! 🌍</p>
+      <p id="mensajeExito">Ya recibimos tu aplicación y tu CV. Nuestro equipo va a revisar tu perfil y te va a contactar pronto por WhatsApp o correo. ¡Prepárate para vivir tu experiencia AIESEC! 🌍</p>
       <button type="button" class="btn-primary again" onclick="reiniciarDemo()"><i class="fas fa-rotate-left"></i> Ver el formulario de nuevo</button>
     </div>
 
@@ -212,7 +212,7 @@
             <div class="tile-group">
               <label class="tile-option" data-c="GV">
                 <input type="radio" name="tipo_interes" value="GV">
-                <span><span class="tile-icon"><i class="fas fa-hand-holding-heart"></i></span>Global Volunteer<span class="tile-desc">Voluntariado  Internacional</span></span>
+                <span><span class="tile-icon"><i class="fas fa-hand-holding-heart"></i></span>Global Volunteer<span class="tile-desc">Voluntariado Intermacional</span></span>
               </label>
               <label class="tile-option" data-c="GTa">
                 <input type="radio" name="tipo_interes" value="GTa">
@@ -259,6 +259,9 @@
               <span id="fileLabel">Toca para subir tu CV (PDF, JPG o PNG, máx. 8MB)</span>
               <input type="file" name="cv" id="cvInput" accept=".pdf,.jpg,.jpeg,.png" onchange="mostrarArchivo(this)">
             </label>
+          </div>
+          <div class="alert" style="background:rgba(226,89,29,.1);border:1px solid rgba(226,89,29,.3);color:var(--accent);">
+            <i class="fas fa-circle-info"></i> Si no tienes tu CV a la mano puedes enviar el formulario, pero ten en cuenta que debes subirlo para poder aplicar a nuestras oportunidades.
           </div>
           <p class="hint">Al enviar, tu solicitud entra directo a revisión del equipo OGX de AIESEC ESEN.</p>
         </div>
@@ -376,9 +379,13 @@ function enviarDemo(ev){
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
   const nombre = document.querySelector('[name=nombre]').value.trim() || 'Alguien';
+  const tieneCv = document.getElementById('cvInput').files.length > 0;
   // Simula el tiempo de un envío real antes de mostrar el éxito
   setTimeout(() => {
     document.getElementById('nombreConfirmacion').textContent = nombre;
+    document.getElementById('mensajeExito').textContent = tieneCv
+      ? 'Ya recibimos tu aplicación y tu CV. Nuestro equipo va a revisar tu perfil y te va a contactar pronto por WhatsApp o correo. ¡Prepárate para vivir tu experiencia AIESEC! 🌍'
+      : 'Ya recibimos tu aplicación. Nos hace falta tu CV para poder aplicarte a nuestras oportunidades — súbelo en cuanto lo tengas a la mano. Mientras tanto nuestro equipo ya puede ir revisando tu perfil. 🌍';
     document.getElementById('formBox').style.display = 'none';
     document.getElementById('successBox').classList.add('active');
     lanzarConfetti();
