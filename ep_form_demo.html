@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Aplica a un intercambio — AIESEC ESEN (Demo)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{
+    --bg:#0b0f1a; --surface:#131928; --surface2:#1a2236; --border:rgba(255,255,255,.08);
+    --accent:#E2591D; --accent2:#F0A202; --accent4:#f43f5e; --muted:#6b7a99; --text:#eef2f9;
+  }
+  body.light{
+    --bg:#f5f0e6; --surface:#ffffff; --surface2:#f0e9db; --border:rgba(60,40,20,.12);
+    --accent:#E2591D; --accent2:#C1440E; --accent4:#dc2f4f; --muted:#8a7a63; --text:#2b1d10;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+       display:flex;align-items:center;justify-content:center;padding:16px;overflow-x:hidden;position:relative;
+       transition:background .3s,color .3s;}
+  .theme-toggle{position:fixed;top:14px;right:14px;z-index:5;width:38px;height:38px;border-radius:50%;
+       background:var(--surface);border:1px solid var(--border);color:var(--text);display:flex;
+       align-items:center;justify-content:center;cursor:pointer;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.25);
+       transition:transform .2s;}
+  .theme-toggle:active{transform:scale(.9);}
+  .demo-badge{display:inline-flex;align-items:center;gap:6px;margin:0 auto 14px;background:var(--surface2);
+       border:1px solid var(--accent);color:var(--accent);font-size:10.5px;font-weight:700;padding:5px 12px;
+       border-radius:20px;letter-spacing:.3px;width:fit-content;}
+  .badge-wrap{display:flex;justify-content:center;}
+  .blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.16;z-index:0;pointer-events:none;animation:drift 16s ease-in-out infinite;}
+  .blob1{width:320px;height:320px;background:var(--accent);top:-100px;left:-80px;}
+  .blob2{width:280px;height:280px;background:#7a2e12;bottom:-100px;right:-80px;animation-delay:-8s;opacity:.22;}
+  @keyframes drift{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-20px) scale(1.1);}}
+  .wrap{width:100%;max-width:560px;position:relative;z-index:1;}
+  .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:18px;animation:dropIn .5s ease;}
+  .brand .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+       display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;animation:spinIn .6s ease;}
+  .brand div{font-weight:700;font-size:16px;}
+  .brand span{display:block;font-weight:400;font-size:11px;color:var(--muted);}
+  @keyframes dropIn{from{opacity:0;transform:translateY(-14px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes spinIn{from{opacity:0;transform:rotate(-90deg) scale(.5);}to{opacity:1;transform:rotate(0) scale(1);}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px 22px;
+       box-shadow:0 20px 60px rgba(0,0,0,.35);animation:cardIn .5s cubic-bezier(.22,1,.36,1);overflow:hidden;}
+  @keyframes cardIn{from{opacity:0;transform:translateY(18px) scale(.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+  h1{font-size:19px;margin:0 0 6px;}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 22px;line-height:1.5;}
+  .progress{display:flex;gap:6px;margin-bottom:22px;}
+  .progress span{flex:1;height:4px;border-radius:4px;background:var(--surface2);transition:background .35s ease, transform .35s ease;transform-origin:left;}
+  .progress span.done{background:var(--accent2);}
+  .progress span.active{background:var(--accent);animation:pulseBar 1.4s ease-in-out infinite;}
+  @keyframes pulseBar{0%,100%{opacity:1;}50%{opacity:.55;}}
+  .step{display:none;}
+  .step.active{display:block;animation:fade .35s cubic-bezier(.22,1,.36,1);}
+  .step.slide-back.active{animation:fadeBack .35s cubic-bezier(.22,1,.36,1);}
+  @keyframes fade{from{opacity:0;transform:translateX(24px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes fadeBack{from{opacity:0;transform:translateX(-24px);}to{opacity:1;transform:translateX(0);}}
+  .step-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+  .step-title i{color:var(--accent);}
+  .form-group{margin-bottom:14px;animation:itemIn .4s ease backwards;}
+  .form-group:nth-child(1){animation-delay:.03s;} .form-group:nth-child(2){animation-delay:.08s;}
+  .form-group:nth-child(3){animation-delay:.13s;} .form-group:nth-child(4){animation-delay:.18s;}
+  @keyframes itemIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .form-row-2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
+  @media(max-width:420px){.form-row-2{grid-template-columns:minmax(0,1fr);}}
+  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;}
+  input[type=text],input[type=email],input[type=tel],select,textarea{
+    width:100%;padding:12px 13px;border-radius:10px;border:1px solid var(--border);
+    background:var(--surface2);color:var(--text);font-family:inherit;font-size:14.5px;outline:none;
+    transition:border-color .2s,box-shadow .2s,transform .12s;
+  }
+  input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(226,89,29,.18);}
+  .hint{font-size:11px;color:var(--muted);margin-top:6px;}
+  .chip-group{display:grid;grid-template-columns:minmax(0,1fr);gap:9px;}
+  @media(min-width:480px){.chip-group{grid-template-columns:minmax(0,1fr) minmax(0,1fr);}}
+  .chip-option{position:relative;animation:itemIn .35s ease backwards;min-width:0;}
+  .chip-option:nth-child(2){animation-delay:.02s;} .chip-option:nth-child(3){animation-delay:.06s;}
+  .chip-option:nth-child(4){animation-delay:.10s;} .chip-option:nth-child(5){animation-delay:.14s;}
+  .chip-option:nth-child(6){animation-delay:.18s;} .chip-option:nth-child(7){animation-delay:.22s;}
+  .chip-option:nth-child(8){animation-delay:.26s;}
+  .chip-option input{position:absolute;opacity:0;width:0;height:0;}
+  .chip-option span{position:relative;display:flex;align-items:center;gap:10px;padding:13px 30px 13px 14px;border-radius:14px;
+       border:1px solid var(--border);background:var(--surface2);font-size:12.5px;font-weight:600;cursor:pointer;
+       transition:all .2s cubic-bezier(.22,1,.36,1);min-width:0;}
+  .chip-option span > span:not(.chip-check){min-width:0;overflow-wrap:break-word;}
+  .chip-option span i:first-child{font-size:16px;width:22px;text-align:center;color:var(--accent);transition:transform .25s;}
+  .chip-option span:active{transform:scale(.95);}
+  .chip-option input:checked + span{background:rgba(226,89,29,.14);border-color:var(--accent);
+       transform:translateY(-2px);box-shadow:0 8px 20px rgba(226,89,29,.25);}
+  .chip-option input:checked + span i:first-child{color:var(--accent);transform:scale(1.15) rotate(-6deg);}
+  .chip-check{position:absolute;top:-7px;right:-7px;font-size:16px;color:var(--accent2);background:var(--surface);
+       border-radius:50%;line-height:1;opacity:0;transform:scale(0);transition:all .25s cubic-bezier(.34,1.56,.64,1);}
+  .chip-option input:checked + span .chip-check{opacity:1;transform:scale(1);}
+  .tile-group{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:10px;}
+  @media(max-width:420px){.tile-group{grid-template-columns:minmax(0,1fr);}}
+  .tile-option{position:relative;animation:itemIn .4s ease backwards;}
+  .tile-option:nth-child(1){animation-delay:.03s;} .tile-option:nth-child(2){animation-delay:.11s;} .tile-option:nth-child(3){animation-delay:.19s;}
+  .tile-option input{position:absolute;opacity:0;width:0;height:0;}
+  .tile-option span{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 10px;
+       border-radius:14px;border:1px solid var(--border);background:var(--surface2);font-size:12.5px;font-weight:600;
+       text-align:center;cursor:pointer;transition:all .2s cubic-bezier(.22,1,.36,1);}
+  .tile-option span:active{transform:scale(.95);}
+  .tile-option .tile-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+       font-size:19px;color:#fff;transition:transform .2s;}
+  .tile-option[data-c="GV"] .tile-icon{background:linear-gradient(135deg,#f43f5e,#f59e0b);}
+  .tile-option[data-c="GTa"] .tile-icon{background:linear-gradient(135deg,var(--accent),#8C2F12);}
+  .tile-option[data-c="GTe"] .tile-icon{background:linear-gradient(135deg,var(--accent2),#C1440E);}
+  .tile-option .tile-desc{font-weight:400;font-size:10.5px;color:var(--muted);}
+  .tile-option input:checked + span{border-color:var(--accent);background:rgba(226,89,29,.12);
+       transform:translateY(-3px);box-shadow:0 10px 24px rgba(226,89,29,.25);}
+  .tile-option input:checked + span .tile-icon{transform:scale(1.1) rotate(-4deg);}
+  .file-drop{border:2px dashed var(--border);border-radius:12px;padding:26px;text-align:center;cursor:pointer;
+       transition:all .2s;}
+  .file-drop:hover{border-color:var(--accent);background:rgba(226,89,29,.05);}
+  .file-drop.has-file{border-color:var(--accent2);background:rgba(240,162,2,.06);}
+  .file-drop i{font-size:26px;color:var(--accent);margin-bottom:8px;display:block;animation:bounce 2s ease-in-out infinite;}
+  .file-drop.has-file i{animation:none;color:var(--accent2);}
+  @keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  .file-drop input{display:none;}
+  .file-name{font-size:12.5px;color:var(--accent2);margin-top:8px;word-break:break-all;}
+  .nav-btns{display:flex;gap:10px;margin-top:22px;}
+  button{border:none;border-radius:10px;padding:13px 18px;font-family:inherit;font-size:14px;font-weight:600;
+       cursor:pointer;transition:transform .12s,opacity .15s,box-shadow .2s;}
+  button:active{transform:scale(.96);}
+  .btn-primary{background:var(--accent);color:#fff;flex:1;box-shadow:0 6px 18px rgba(226,89,29,.3);}
+  .btn-primary:hover{box-shadow:0 8px 22px rgba(226,89,29,.42);}
+  .btn-back{background:var(--surface2);color:var(--text);}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+  .alert{padding:12px 14px;border-radius:10px;margin-bottom:16px;font-size:13px;display:flex;gap:8px;align-items:flex-start;
+       animation:shake .4s ease;}
+  @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-6px);}40%{transform:translateX(6px);}60%{transform:translateX(-4px);}80%{transform:translateX(4px);}}
+  .alert-error{background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.3);color:#ff8098;}
+  body.light .alert-error{color:#b3123a;}
+  .success{text-align:center;padding:20px 6px;display:none;position:relative;}
+  .success.active{display:block;}
+  .success .check-circle{width:76px;height:76px;border-radius:50%;background:rgba(240,162,2,.12);
+       display:flex;align-items:center;justify-content:center;margin:0 auto 16px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1);}
+  .success i{font-size:36px;color:var(--accent2);}
+  @keyframes popIn{from{opacity:0;transform:scale(0);}to{opacity:1;transform:scale(1);}}
+  .success h2{font-size:19px;margin:0 0 8px;animation:itemIn .4s ease .15s backwards;}
+  .success p{color:var(--muted);font-size:13.5px;line-height:1.6;animation:itemIn .4s ease .25s backwards;}
+  .success .again{margin-top:16px;animation:itemIn .4s ease .35s backwards;}
+  .confetti{position:absolute;top:0;left:50%;font-size:18px;opacity:0;pointer-events:none;animation:confetti 1.1s ease-out forwards;}
+  @keyframes confetti{0%{opacity:1;transform:translate(0,0) rotate(0);}100%{opacity:0;transform:translate(var(--dx),120px) rotate(var(--rot));}}
+</style>
+</head>
+<body>
+<button type="button" class="theme-toggle" id="themeToggle" title="Cambiar modo claro/oscuro"><i class="fas fa-moon" id="themeIcon"></i></button>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="wrap">
+  <div class="badge-wrap"><div class="demo-badge"><i class="fas fa-eye"></i> Vista previa — no guarda datos reales</div></div>
+  <div class="brand">
+    <div class="logo"><i class="fas fa-globe-americas"></i></div>
+    <div>AIESEC ESEN<span>Aplicación a intercambio</span></div>
+  </div>
+
+  <div class="card">
+
+    <div class="success" id="successBox">
+      <div class="check-circle"><i class="fas fa-check"></i></div>
+      <h2>¡Gracias, <span id="nombreConfirmacion">Alguien</span>!</h2>
+      <p id="mensajeExito">Ya recibimos tu aplicación y tu CV. Nuestro equipo va a revisar tu perfil y te va a contactar pronto por WhatsApp o correo. ¡Prepárate para vivir tu experiencia AIESEC! 🌍</p>
+      <button type="button" class="btn-primary again" onclick="reiniciarDemo()"><i class="fas fa-rotate-left"></i> Ver el formulario de nuevo</button>
+    </div>
+
+    <div id="formBox">
+      <h1>Aplica a tu intercambio</h1>
+      <p class="sub">Te toma menos de 3 minutos. El resto del proceso (documentos, fechas, oportunidad exacta) lo vemos juntos después.</p>
+
+      <div class="alert alert-error" id="errorBox" style="display:none;"><i class="fas fa-triangle-exclamation"></i><span id="errorMsg"></span></div>
+
+      <div class="progress">
+        <span class="active" data-bar="1"></span><span data-bar="2"></span><span data-bar="3"></span><span data-bar="4"></span><span data-bar="5"></span>
+      </div>
+
+      <form id="epForm" onsubmit="return enviarDemo(event)">
+
+        <div class="step active" data-step="1">
+          <div class="step-title"><i class="fas fa-user"></i> Sobre ti</div>
+          <div class="form-row-2">
+            <div class="form-group"><label>Nombre *</label><input type="text" name="nombre" required></div>
+            <div class="form-group"><label>Apellido *</label><input type="text" name="apellido" required></div>
+          </div>
+          <div class="form-group"><label>WhatsApp</label><input type="tel" name="telefono" placeholder="+503 0000-0000"></div>
+          <div class="form-group"><label>Correo</label><input type="email" name="email"></div>
+          <p class="hint">Con WhatsApp o correo nos basta para contactarte.</p>
+        </div>
+
+        <div class="step" data-step="2">
+          <div class="step-title"><i class="fas fa-university"></i> Tu universidad</div>
+          <div class="form-group">
+            <select name="universidad_id" id="selUni" onchange="toggleUniOtra()">
+              <option value="">— Selecciona tu universidad —</option>
+              <!-- Datos de ejemplo — en el sistema real esta lista sale de tu catálogo en la BD -->
+              <option value="0">Escuela Superior de Economía y Negocios (ESEN)</option>
+              <option value="1">Universidad Gerardo Barrios (UGB)</option>
+              <option value="2">Universidad de El Salvador (UES)</option>
+              <option value="3">Universidad Don Bosco (UDB)</option>
+              <option value="4">Universidad Centroamericana José Simeón Cañas (UCA)</option>
+              <option value="5">Universidad Tecnológica de El Salvador (UTEC)</option>
+              <option value="otra">Otra (no está en la lista)</option>
+            </select>
+            <input type="text" name="universidad_otra" id="uniOtra" style="margin-top:10px;display:none;" placeholder="Escribe el nombre de tu universidad">
+          </div>
+        </div>
+
+        <div class="step" data-step="3">
+          <div class="step-title"><i class="fas fa-compass"></i> Tu interés</div>
+          <div class="form-group">
+            <label>¿Qué tipo de aventura te interesa? *</label>
+            <div class="tile-group">
+              <label class="tile-option" data-c="GV">
+                <input type="radio" name="tipo_interes" value="GV">
+                <span><span class="tile-icon"><i class="fas fa-hand-holding-heart"></i></span>Global Volunteer<span class="tile-desc">Proyectos sociales</span></span>
+              </label>
+              <label class="tile-option" data-c="GTa">
+                <input type="radio" name="tipo_interes" value="GTa">
+                <span><span class="tile-icon"><i class="fas fa-briefcase"></i></span>Global Talent<span class="tile-desc">Prácticas profesionales</span></span>
+              </label>
+              <label class="tile-option" data-c="GTe">
+                <input type="radio" name="tipo_interes" value="GTe">
+                <span><span class="tile-icon"><i class="fas fa-chalkboard-user"></i></span>Global Teacher<span class="tile-desc">Enseñar en el extranjero</span></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>País de tu interés *</label>
+            <!-- Datos de ejemplo — en el sistema real solo aparecen países con oportunidades activas -->
+            <input type="text" name="pais_interes" list="listaPaises" autocomplete="off" placeholder="Escribe o elige un país">
+            <datalist id="listaPaises">
+              <option value="México"><option value="Colombia"><option value="Costa Rica">
+              <option value="Alemania"><option value="Polonia"><option value="Indonesia">
+              <option value="India"><option value="Turquía"><option value="Egipto">
+            </datalist>
+            <p class="hint">Solo mostramos países donde tenemos oportunidades abiertas ahora mismo.</p>
+          </div>
+        </div>
+
+        <div class="step" data-step="4">
+          <div class="step-title"><i class="fas fa-bullhorn"></i> ¿Cómo nos conociste?</div>
+          <div class="chip-group">
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Amigo" onchange="toggleComoOtro()"><span><i class="fas fa-user-group"></i>Por un amigo/conocido<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Redes" onchange="toggleComoOtro()"><span><i class="fas fa-hashtag"></i>Redes sociales<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Feria" onchange="toggleComoOtro()"><span><i class="fas fa-store"></i>Feria de empleo / universitaria<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Charla" onchange="toggleComoOtro()"><span><i class="fas fa-chalkboard-user"></i>Charla en mi universidad<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Ya_conocia" onchange="toggleComoOtro()"><span><i class="fas fa-star"></i>Ya conocía AIESEC antes<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Profesor" onchange="toggleComoOtro()"><span><i class="fas fa-graduation-cap"></i>Profesor/coordinador<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+            <label class="chip-option"><input type="radio" name="como_se_entero" value="Otro" onchange="toggleComoOtro()"><span><i class="fas fa-ellipsis"></i>Otro<span class="chip-check"><i class="fas fa-circle-check"></i></span></span></label>
+          </div>
+          <input type="text" name="como_se_entero_otro" id="comoOtro" style="margin-top:10px;display:none;" placeholder="Cuéntanos brevemente">
+        </div>
+
+        <div class="step" data-step="5">
+          <div class="step-title"><i class="fas fa-file-arrow-up"></i> Tu CV</div>
+          <div class="form-group">
+            <label class="file-drop" id="fileDrop" onclick="document.getElementById('cvInput').click()">
+              <i class="fas fa-cloud-arrow-up"></i>
+              <span id="fileLabel">Toca para subir tu CV (PDF, JPG o PNG, máx. 8MB)</span>
+              <input type="file" name="cv" id="cvInput" accept=".pdf,.jpg,.jpeg,.png" onchange="mostrarArchivo(this)">
+            </label>
+          </div>
+          <div class="alert" style="background:rgba(226,89,29,.1);border:1px solid rgba(226,89,29,.3);color:var(--accent);">
+            <i class="fas fa-circle-info"></i> Si no tienes tu CV a la mano puedes enviar el formulario, pero ten en cuenta que debes subirlo para poder aplicar a nuestras oportunidades.
+          </div>
+          <p class="hint">Al enviar, tu solicitud entra directo a revisión del equipo OGX de AIESEC ESEN.</p>
+        </div>
+
+        <div class="nav-btns">
+          <button type="button" class="btn-back" id="btnBack" onclick="cambiarPaso(-1)" style="display:none;"><i class="fas fa-arrow-left"></i></button>
+          <button type="button" class="btn-primary" id="btnNext" onclick="cambiarPaso(1)">Siguiente <i class="fas fa-arrow-right"></i></button>
+          <button type="submit" class="btn-primary" id="btnSubmit" style="display:none;"><i class="fas fa-paper-plane"></i> Enviar aplicación</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// VERSIÓN DEMO — solo para visualizar diseño/animaciones en GitHub Pages.
+// No guarda nada real: no hay backend, base de datos ni subida de archivos.
+// La versión funcional vive en public/ep_form.php dentro del proyecto PHP.
+// ═══════════════════════════════════════════════════════════════════════════
+let pasoActual = 1;
+const totalPasos = 5;
+
+function actualizarUI(dir){
+  document.querySelectorAll('.step').forEach(s => {
+    const activo = +s.dataset.step === pasoActual;
+    s.classList.toggle('slide-back', dir < 0);
+    s.classList.toggle('active', activo);
+  });
+  document.querySelectorAll('.progress span').forEach(b => {
+    const n = +b.dataset.bar;
+    b.classList.toggle('done', n < pasoActual);
+    b.classList.toggle('active', n === pasoActual);
+  });
+  document.getElementById('btnBack').style.display = pasoActual === 1 ? 'none' : 'block';
+  document.getElementById('btnNext').style.display = pasoActual === totalPasos ? 'none' : 'block';
+  document.getElementById('btnSubmit').style.display = pasoActual === totalPasos ? 'block' : 'none';
+}
+
+function mostrarError(msg){
+  const box = document.getElementById('errorBox');
+  document.getElementById('errorMsg').textContent = msg;
+  box.style.display = 'none'; void box.offsetWidth; box.style.display = 'flex'; // reinicia la animación shake
+}
+
+function validarPaso(n){
+  document.getElementById('errorBox').style.display = 'none';
+  if (n === 1) {
+    const nombre = document.querySelector('[name=nombre]').value.trim();
+    const apellido = document.querySelector('[name=apellido]').value.trim();
+    const tel = document.querySelector('[name=telefono]').value.trim();
+    const mail = document.querySelector('[name=email]').value.trim();
+    if (!nombre || !apellido) { mostrarError('Escribe tu nombre y apellido.'); return false; }
+    if (!tel && !mail) { mostrarError('Déjanos tu WhatsApp o correo.'); return false; }
+  }
+  if (n === 2) {
+    const sel = document.getElementById('selUni').value;
+    const otra = document.getElementById('uniOtra').value.trim();
+    if (!sel) { mostrarError('Selecciona tu universidad.'); return false; }
+    if (sel === 'otra' && !otra) { mostrarError('Escribe el nombre de tu universidad.'); return false; }
+  }
+  if (n === 3) {
+    const tipo = document.querySelector('[name=tipo_interes]:checked');
+    const pais = document.querySelector('[name=pais_interes]').value.trim();
+    if (!tipo) { mostrarError('Elige el tipo de aventura que te interesa.'); return false; }
+    if (!pais) { mostrarError('Indica el país de tu interés.'); return false; }
+  }
+  if (n === 4) {
+    const como = document.querySelector('[name=como_se_entero]:checked');
+    if (!como) { mostrarError('Cuéntanos cómo nos conociste.'); return false; }
+    if (como.value === 'Otro' && !document.getElementById('comoOtro').value.trim()) { mostrarError('Cuéntanos brevemente.'); return false; }
+  }
+  return true;
+}
+
+function cambiarPaso(dir){
+  if (dir > 0 && !validarPaso(pasoActual)) return;
+  pasoActual = Math.min(totalPasos, Math.max(1, pasoActual + dir));
+  actualizarUI(dir);
+}
+
+function toggleUniOtra(){
+  document.getElementById('uniOtra').style.display = document.getElementById('selUni').value === 'otra' ? 'block' : 'none';
+}
+function toggleComoOtro(){
+  const c = document.querySelector('[name=como_se_entero]:checked');
+  document.getElementById('comoOtro').style.display = (c && c.value === 'Otro') ? 'block' : 'none';
+}
+function mostrarArchivo(input){
+  if (!input.files.length) return;
+  document.getElementById('fileLabel').textContent = input.files[0].name;
+  document.getElementById('fileDrop').classList.add('has-file');
+}
+
+function lanzarConfetti(){
+  const box = document.getElementById('successBox');
+  document.querySelectorAll('.confetti').forEach(e => e.remove());
+  const emojis = ['🎉','✨','🌍','💙','🎊'];
+  for(let i=0;i<16;i++){
+    const s = document.createElement('span');
+    s.className = 'confetti';
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.setProperty('--dx',(Math.random()*240-120)+'px');
+    s.style.setProperty('--rot',(Math.random()*360-180)+'deg');
+    s.style.left = (Math.random()*100)+'%';
+    s.style.animationDelay = (Math.random()*.3)+'s';
+    box.appendChild(s);
+  }
+}
+
+function enviarDemo(ev){
+  ev.preventDefault();
+  if (!validarPaso(4)) return false;
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+  const nombre = document.querySelector('[name=nombre]').value.trim() || 'Alguien';
+  const tieneCv = document.getElementById('cvInput').files.length > 0;
+  // Simula el tiempo de un envío real antes de mostrar el éxito
+  setTimeout(() => {
+    document.getElementById('nombreConfirmacion').textContent = nombre;
+    document.getElementById('mensajeExito').textContent = tieneCv
+      ? 'Ya recibimos tu aplicación y tu CV. Nuestro equipo va a revisar tu perfil y te va a contactar pronto por WhatsApp o correo. ¡Prepárate para vivir tu experiencia AIESEC! 🌍'
+      : 'Ya recibimos tu aplicación. Nos hace falta tu CV para poder aplicarte a nuestras oportunidades — súbelo en cuanto lo tengas a la mano. Mientras tanto nuestro equipo ya puede ir revisando tu perfil. 🌍';
+    document.getElementById('formBox').style.display = 'none';
+    document.getElementById('successBox').classList.add('active');
+    lanzarConfetti();
+  }, 700);
+  return false;
+}
+
+function reiniciarDemo(){
+  document.getElementById('epForm').reset();
+  document.getElementById('successBox').classList.remove('active');
+  document.getElementById('formBox').style.display = 'block';
+  document.getElementById('fileLabel').textContent = 'Toca para subir tu CV (PDF, JPG o PNG, máx. 8MB)';
+  document.getElementById('fileDrop').classList.remove('has-file');
+  const btn = document.getElementById('btnSubmit');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar aplicación';
+  pasoActual = 1;
+  actualizarUI();
+}
+
+toggleUniOtra();
+toggleComoOtro();
+actualizarUI();
+
+// ── Modo claro/oscuro (se recuerda entre visitas) ──────────────────────────
+(function(){
+  const saved = localStorage.getItem('ep_form_theme');
+  const icon = document.getElementById('themeIcon');
+  if (saved === 'light') { document.body.classList.add('light'); icon.className = 'fas fa-sun'; }
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const isLight = document.body.classList.toggle('light');
+    icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+    localStorage.setItem('ep_form_theme', isLight ? 'light' : 'dark');
+  });
+})();
+
+</script>
+</body>
+</html>
